@@ -1,0 +1,8 @@
+# Match the versions used to train/serialize the uploaded model artifact.
+# Choose Python 3.13 in Streamlit Community Cloud advanced settings.
+streamlit==1.45.1
+scikit-learn==1.6.1
+numpy==2.1.3
+pandas==2.2.3
+joblib>=1.4.2,<2.0
+openai>=1.68.0,<3.0
