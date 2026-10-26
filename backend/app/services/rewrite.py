@@ -459,8 +459,17 @@ class OpenRouterChatCompletionsProvider:
                 },
             ],
             "temperature": 0.2,
-            "max_tokens": 1200,
+            "max_tokens": 2500,
+            "reasoning": {"effort": "low"},
         }
+        retry_model = os.getenv(
+            "OPENROUTER_RETRY_MODEL",
+             "google/gemma-4-26b-a4b-it:free",
+        ).strip()
+        if not retry_model:
+            retry_model =  "google/gemma-4-26b-a4b-it:free"
+        if retry_model==self.model:
+            retry_model="openrouter/free"
 
         last_diagnostic: dict[str, Any] = {}
 
@@ -511,8 +520,11 @@ class OpenRouterChatCompletionsProvider:
 
             except (httpx.RequestError, ValueError) as exc:
                 if attempt == 0:
-                    await asyncio.sleep(0.5)
-                    continue
+                   body["model"] = retry_model
+                   body["max_tokens"] = 4000
+                   body["reasoning"] = {"effort": "low"}
+                   await asyncio.sleep(0.5)
+                   continue
 
                 return {
                     "status": "provider_error",

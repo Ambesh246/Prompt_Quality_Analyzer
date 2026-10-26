@@ -166,6 +166,33 @@ def create_app(model_service: PreferenceModel | None = None) -> FastAPI:
             )
         improved_prompt = str(result["rewritten_prompt"]).strip()
         improved_analysis = score_prompt(improved_prompt)
+        if body.use_provider and improved_analysis.score<80:
+            second_rubric=assess_prompt(improved_prompt)
+            second_result= await improve_prompt(
+                improved_prompt,
+                second_rubric,
+                use_provider=True,
+            )
+            if (
+                second_result.get("status")=="success" and second_result.get("rewritten_prompt")
+
+            ):
+                second_prompt=str(
+                    second_result["rewritten_prompt"]
+                ).strip()
+                if second_prompt and second_prompt!=improved_prompt:
+                    second_analysis = score_prompt(second_prompt)
+
+                    if second_analysis.score>improved_analysis.score:
+                        result=second_result
+                        improved_prompt=second_prompt
+                        improved_analysis=second_analysis
+                        result["changes"]=list(
+                            result.get("changes", [])
+                        )+[
+                            "A second refinment was selected because"
+                            "its estimated score was higher"
+                        ]
         return ImproveResponse(
             status="success", provider=result.get("provider"), model=result.get("model"),
             original_prompt=body.prompt, rewritten_prompt=improved_prompt,
