@@ -212,8 +212,8 @@ class RuleBasedRewriteProvider:
             "rewritten_prompt": rewritten,
             "changes": changes,
             "notice": (
-                "This is a deterministic rewrite, not an "
-                "AI-generated result."
+                "This is a deterministic template-based rewrite, "
+                "not an LLM-generated rewrite."
             ),
         }
 
